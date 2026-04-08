@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
     uniform_real_distribution<double> dist(0.0, 1.0);
 
 
-    uint64_t points_count_inside_circle = 0;
+    uint64_t points_inside_circle_count = 0;
 
     auto start = chrono::high_resolution_clock::now();
 
@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
 
         if (x*x + y*y <= 1.0)
         {
-            points_count_inside_circle++;
+            points_inside_circle_count++;
         }
     }
 
@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
     chrono::duration<double> elapsed = end - start;
 
 
-    long double estimated_pi = 4.0L * points_count_inside_circle / total_points_count;
+    long double estimated_pi = 4.0L * points_inside_circle_count / total_points_count;
 
 
     cout << setprecision(18);
