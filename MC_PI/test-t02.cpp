@@ -1,9 +1,11 @@
+// Compilation: g++ -O3 -march=native -fopenmp -std=c++17 test-t02.cpp -o test-t02
+// Run: .\test-02
+
 #include <iostream>
 #include <random>
 #include <cstdint>
 #include <cmath>
 #include <iomanip>
-#include <chrono>
 #include <omp.h>
 
 
@@ -23,8 +25,6 @@ int main(int argc, char* argv[])
     uint64_t total_points_count = stoull(argv[1]);
 
     uint64_t points_inside_circle_count = 0;
-
-    auto start = chrono::high_resolution_clock::now();
 
 
     #pragma omp parallel
@@ -53,8 +53,6 @@ int main(int argc, char* argv[])
         points_inside_circle_count += points_inside_circle_count_local;
     }
 
-    auto end = chrono::high_resolution_clock::now();
-
     long double estimated_pi = 4.0L * points_inside_circle_count / total_points_count;
 
     cout << setprecision(18);
@@ -66,10 +64,6 @@ int main(int argc, char* argv[])
     cout << "Error (%): "
         << fixed << setprecision(5)
         << error << "\n";
-
-    chrono::duration<double> elapsed = end - start;
-    cout << "Execution Time: "
-        << elapsed.count() << " seconds\n";
 
     return 0;
 }
