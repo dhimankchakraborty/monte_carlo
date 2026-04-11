@@ -5,6 +5,9 @@
 #include <iostream>
 #include <cmath>
 #include <iomanip>
+#include <vector>
+#include <stdexcept>
+
 
 using namespace std;
 
@@ -35,29 +38,24 @@ double acceptance_ratio_t01(double beta, double x_current, double x_next)
 }
 
 
-// double metropolis_step(double x_current, double step_size, double beta, uniform_real_distribution<double> uniform, mt19937 rng)
-// {
-//     double delta = step_size * (uniform(rng) - 0.5);
-//     double x_trial = x_current + delta;
+vector<double> linspace(double start, double end, size_t num)
+{
+    if (num <= 0)
+    {
+        throw invalid_argument("Number of points must be > 0");
+    }
+    else if (num == 1)
+    {
+        return {start};
+    }
 
+    vector<double> result(num);
+    double step = (end - start) / (num - 1);
 
-//     double ratio = psi_squared(x_trial, beta) / psi_squared(x_current, beta);
+    for (size_t i = 0; i < num; ++i)
+    {
+        result[i] = start + i * step;
+    }
 
-
-//     if (ratio >= 1.0)
-//     {
-//         return x_trial;
-//     }
-//     else
-//     {
-//         double r = uniform(rng);
-//         if (r < ratio)
-//         {
-//             return x_trial;
-//         }
-//         else
-//         {
-//             return x_current;
-//         }
-//     }
-// }
+    return result;
+}
