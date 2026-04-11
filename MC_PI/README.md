@@ -22,7 +22,7 @@ $\pi \approx 4 \times \frac{\text{Number of points inside circle}}{\text{Total n
 2. Initialize a counter for points inside the circle
 3. Repeat (N) times:
     - Generate random numbers ($x, y \in [0,1]$)
-    - Check if (x^2 + y^2 \leq 1)
+    - Check if (x^2 + y^2 $\leq$ 1)
     - If true, increment the counter
 4. Estimate $\pi$ using:
 $\pi \approx 4 \times \frac{\text{inside count}}{N}$

@@ -83,6 +83,8 @@ For each Monte Carlo step:
    - If accepted: $R \leftarrow R'$
    - Else: keep current $R$
 
+**Note**: _In a MC step when we reject a movement/step, we set the current position to the position that was at the starting of the step. After rejection, we do need to calculate the energy of the current position. that should not be skipped over._
+
 ---
 
 ### 4. Thermalization
@@ -137,12 +139,12 @@ $$
 ```text
 1. Initialize R
 2. For i = 1 → N_total:
-      Propose R'
-      Compute A = |Ψ_T(R')|^2 / |Ψ_T(R)|^2
-      Accept/reject using Metropolis rule
-      If i > N_therm:
-          Compute E_L(R)
-          Accumulate energy
+    2.1 Propose R'
+    2.2 Compute A = |Ψ_T(R')|^2 / |Ψ_T(R)|^2
+    2.3 Accept/reject using Metropolis rule
+    2.4 If i > N_therm:
+        2.4.1 Compute E_L(R)
+        2.4.2 Accumulate energy
 3. Compute average energy E_T
 4. Compute variance σ²
 5. Optimize parameters α```
