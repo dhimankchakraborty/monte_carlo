@@ -15,7 +15,7 @@ step_size = 0.5
 n_mc_steps = 10**7
 n_therm_steps = int(n_mc_steps / 10)
 
-beta = 0.5
+beta = 0.51
 
 x_current = x_init
 for i in tqdm(range(n_therm_steps)):
@@ -29,6 +29,7 @@ for i in tqdm(range(n_therm_steps)):
         x_current = x_next
 
 total_energy = 0
+total_energy_squared = 0
 
 for i in tqdm(range(n_mc_steps)):
     x_next = x_current + (rng_step.random() * 2 * step_size - step_size)
@@ -41,7 +42,14 @@ for i in tqdm(range(n_mc_steps)):
     if acceptance_ratio > rng_acceptance.random():
         x_current = x_next
     
-    total_energy += local_energy_t01(beta, x_current)
+    local_energy = local_energy_t01(beta, x_current)
+    total_energy += local_energy
+    total_energy_squared += local_energy**2
 
-total_energy = total_energy / n_mc_steps
-print(total_energy)
+energy = total_energy / n_mc_steps
+varience = (total_energy_squared / n_mc_steps) - energy**2
+standard_deviation = np.sqrt(varience)
+
+print("Energy:", energy)
+print("Varience:", varience)
+print("Standard Deviation:", standard_deviation)
