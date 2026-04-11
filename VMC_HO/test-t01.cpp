@@ -1,5 +1,6 @@
 // Compilation: g++ -O3 -march=native -ffast-math -std=c++17 test-t01.cpp functions.cpp -o test-t01
 // Run: ./test-t01
+
 #include <iostream>
 #include <random>
 #include <cmath>
@@ -10,96 +11,76 @@
 
 
 
-// const int N_TOTAL = 1e6;
-// const int N_THERM = 1e4;
-// const double STEP_SIZE = 1.0;
-// const double BETA = 0.5;
 
-
-
-
-
-
-int main(int argc, char* argv[])
+int main()
 {
-    if (argc < 5) 
-    {
-        std::cerr << "Usage: " << argv[0] << " <total_number_of_steps> <thermalization_steps> <step_size> <beta>\n";
-        return 1;
-    }
+    double x_init = 0.0;
+    double step_size = 0.5;
+    uint64_t n_mc_steps = 100'000'000;
+    uint64_t n_therm_steps = n_mc_steps / 10;
 
-    uint64_t n_total = 0;
-    uint64_t n_therm = 0;
-    double step_size = 0.0;
-    double beta = 0.0;
-
-    try 
-    {
-        n_total = stoull(argv[1]);
-        n_therm = stoull(argv[2]);
-        step_size = stod(argv[3]);
-        beta = stod(argv[4]);
-    } 
-    catch (...) 
-    {
-        cerr << "Error: Incorrect input datatype.\n";
-        return 1;
-    }
-
-    double x = 0.0;
-
-    double energy_sum = 0.0;
-    double energy_sq_sum = 0.0;
-
-    int accepted = 0;
+    double beta = 0.5;
 
     random_device rd;
-    mt19937 rng(rd());
-    uniform_real_distribution<double> uniform(0.0, 1.0);
+    mt19937 gen(rd());
+    uniform_real_distribution<double> dist(0.0, 1.0);
 
-    for (int i = 0; i < n_total; ++i) {
+    random_device rd_step;
+    mt19937 gen_step(rd_step());
+    uniform_real_distribution<double> dist_step(-1*step_size, step_size);
 
-        double x_new = metropolis_step(x, step_size, beta, uniform, rng);
+    random_device rd_acceptance;
+    mt19937 gen_acceptance(rd_acceptance());
+    uniform_real_distribution<double> dist_acceptance(0.0, 1.0);
 
-        if (x_new != x) accepted++;
+    double x_current, x_next, acceptance_ratio, total_energy, total_energy_squared, local_energy;
 
-        x = x_new;
 
-        if (i >= n_therm) {
+    if (x_init == 0.0)
+    {
+        x_current = dist(gen);
+    }
+    else
+    {
+        x_current = x_init;
+    }
 
-            double e = local_energy(x, beta);
 
-            energy_sum += e;
-            energy_sq_sum += e * e;
+    for (size_t i = 0; i < n_therm_steps; i++)
+    {
+        x_next = x_current + dist_step(gen);
+        acceptance_ratio = acceptance_ratio_t01(beta, x_current, x_next);
+
+        if (acceptance_ratio > dist_acceptance(gen))
+        {
+            x_current = x_next;
         }
     }
 
-    int n_samples = n_total - n_therm;
+    total_energy = 0;
+    total_energy_squared = 0;
+    for (size_t i = 0; i < n_mc_steps; i++)
+    {
+        x_next = x_current + dist_step(gen);
+        acceptance_ratio = acceptance_ratio_t01(beta, x_current, x_next);
 
-    double E_avg = energy_sum / n_samples;
-    double E2_avg = energy_sq_sum / n_samples;
+        if (acceptance_ratio > dist_acceptance(gen))
+        {
+            x_current = x_next;
+        }
 
-    double variance = E2_avg - E_avg * E_avg;
-    double std_error = sqrt(variance / n_samples);
+        local_energy = local_energy_t01(beta, x_current);
+        total_energy += local_energy;
+        total_energy_squared += local_energy*local_energy;
+    }
 
-    double acceptance_ratio = (double)accepted / n_total;
+    double energy = total_energy / n_mc_steps;
+    double varience = (total_energy_squared / n_mc_steps) - (energy*energy);
+    double standard_deviation = sqrt(varience);
 
-    // ------------------------------
-    // Output results
-    // ------------------------------
-    cout << std::fixed << std::setprecision(6);
-
-    cout << "====================================\n";
-    cout << "VMC Results (1D Harmonic Oscillator)\n";
-    cout << "====================================\n";
-
-    cout << "Beta                = " << beta << "\n";
-    cout << "Energy              = " << E_avg << "\n";
-    cout << "Variance            = " << variance << "\n";
-    cout << "Std Error           = " << std_error << "\n";
-    cout << "Acceptance Ratio    = " << acceptance_ratio << "\n";
-
-    cout << "====================================\n";
+    cout << "Energy: " << energy << endl;
+    cout << "Varience: " << varience << endl;
+    cout << "Standard Deviation: " << standard_deviation << endl;
 
     return 0;
 }
