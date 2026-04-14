@@ -1,11 +1,10 @@
 import numpy as np
+from classes import *
 
 
 
 
-class slaterWaveFunction:
-    def __init__(self, single_particle_basis_number, particle_number) -> None:
-        self.wave_function = np.zeros((single_particle_basis_number, particle_number))
+wf = slaterWaveFunction2Spin(2, 3, 4)
 
-
-wf = slaterWaveFunction(3, 2)
+print(wf.wave_function_up)
+print(wf.wave_function_down)
