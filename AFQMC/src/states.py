@@ -36,7 +36,7 @@ class SlaterDeterminantTwoSpinState:
 
     def norm(self):
         """
-        Calculates the squared norm <self | self> of the Slater determinant.
+        Calculates the squar ed norm <self | self> of the Slater determinant.
         """
         return self.overlap_calculation_logdet(self)
 

@@ -25,9 +25,11 @@ class HubbardPropagator:
 
     
     def interaction_propagator(self, x):
-
-        Bup = np.diag(np.exp(+self.gamma * x))
-        Bdn = np.diag(np.exp(-self.gamma * x))
+        prefactor = np.exp(-0.5 * self.dtau * self.U)
+        Bup = np.diag(prefactor * np.exp(+self.gamma * x))
+        Bdn = np.diag(prefactor * np.exp(-self.gamma * x))
+        # Bup = np.diag(np.exp(+self.gamma * x))
+        # Bdn = np.diag(np.exp(-self.gamma * x))
 
         return Bup, Bdn
     

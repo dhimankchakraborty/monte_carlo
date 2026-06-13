@@ -1,0 +1,115 @@
+import sys
+import os
+from pprint import pprint
+import numpy as np
+from itertools import product
+from scipy.linalg import expm
+
+sys.path.append(os.path.dirname(os.getcwd()))
+# from src.core import * # type: ignore
+from src.hamiltonians import *
+from src.lattices import *
+from src.propagators import *
+from src.states import *
+from src.walkers import *
+
+
+
+L = 2
+
+Nup = 1
+Ndown = 1
+
+t = 1.0
+U = 4.0
+
+dtau = 0.05
+
+n_steps = 200
+
+n_walkers = 500
+
+
+# ==================================================
+# SYSTEM
+# ==================================================
+
+lattice = Chain(
+    n_sites=L,
+    pbc=False
+)
+
+system = HubbardSystem(
+    lattice=lattice,
+    t=t,
+    U=U
+)
+
+K = system.h_kin
+
+prop = HubbardPropagator(
+    K=K,
+    U=U,
+    dtau=dtau
+)
+
+# ==================================================
+# WALKER ENSEMBLE
+# ==================================================
+
+walkers = []
+
+for _ in range(n_walkers):
+
+    state = SlaterDeterminantTwoSpinState(
+        hamiltonian=system,
+        n_electrons_up=Nup,
+        n_electrons_down=Ndown
+    )
+
+    state.initialize("random")
+
+    walkers.append(
+        Walker(state)
+    )
+
+# ==================================================
+# PROPAGATION
+# ==================================================
+
+for step in range(n_steps):
+
+    for walker in walkers:
+
+        prop.propagate(walker)
+
+        walker.orthogonalize()
+
+    if step % 20 == 0:
+
+        energies = [
+            system.calculate_energy(w)
+            for w in walkers
+        ]
+
+        print(
+            step,
+            np.mean(energies)
+        )
+
+# ==================================================
+# FINAL RESULT
+# ==================================================
+
+energies = [
+    system.calculate_energy(w)
+    for w in walkers
+]
+
+print()
+print("Monte Carlo average:")
+print(np.mean(energies))
+
+print()
+print("Exact Hubbard dimer:")
+print(-0.828427124746)

@@ -32,9 +32,7 @@ class Walker:
 
 
     def compute_overlap(self, trial_state):
-        self.overlap = trial_state.overlap_calculation_logdet(self.state)
-
-        return self.overlap
+        return trial_state.overlap_calculation_logdet(self.state)
 
 
     def orthogonalize(self):
@@ -47,3 +45,19 @@ class Walker:
 
     def get_phi_down(self):
         return self.state.phi_down
+    
+
+    def update_weight(self, trial_state):
+
+        # self.weight *= (new_overlap / self.overlap)
+        # self.overlap = new_overlap
+        
+        new_overlap = self.compute_overlap(trial_state)
+
+        if abs(self.overlap) < 1e-14: # type: ignore
+            self.weight = 0.0
+            self.overlap = new_overlap
+            return
+
+        self.weight *= abs(new_overlap / self.overlap)
+        self.overlap = new_overlap
