@@ -102,9 +102,33 @@ class HubbardSystem(System):
         E_kin = np.trace(K @ G_up).real
         E_kin += np.trace(K @ G_dn).real
 
-        n_up = np.diag(G_up).real
-        n_dn = np.diag(G_dn).real
+        n_up = np.diag(G_up).real # type: ignore
+        n_dn = np.diag(G_dn).real # type: ignore
 
         E_int = U * np.sum(n_up * n_dn)
 
         return E_kin + E_int
+    
+
+    def energy_mixed_estimator(self, trial_state, walker):
+        phi_up = walker.state.phi_up
+        phi_dn = walker.state.phi_down
+        phi_T_up = trial_state.phi_up
+        phi_T_dn = trial_state.phi_down
+
+        K = self.h_kin
+        U = self.U
+
+        G_up = phi_up @ phi_T_up.conj().T
+        G_dn = phi_dn @ phi_T_dn.conj().T
+
+        E_kin = np.trace(K @ G_up).real
+        E_kin += np.trace(K @ G_dn).real
+
+        n_up = np.diag(G_up).real # type: ignore
+        n_dn = np.diag(G_dn).real # type: ignore
+
+        E_int = U * np.sum(n_up * n_dn)
+
+        return E_kin + E_int
+    
